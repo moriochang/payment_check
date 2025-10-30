@@ -12,7 +12,7 @@
             font-family: 'Inter', sans-serif;
             background-color: #f3f4f6;
         }
-        /* 隱藏 Chrome/Safari 的數字輸入框箭頭 */
+        /* 隱藏 Chrome/Safari 的數字輸入框箭頭 (雖然已改為 text，但保留以防萬一) */
         input[type=number]::-webkit-inner-spin-button,
         input[type=number]::-webkit-outer-spin-button {
             -webkit-appearance: none;
@@ -43,39 +43,39 @@
         </div>
 
         <div id="inputs-container" class="space-y-4">
-            <!-- Payment Total -->
+            <!-- Payment Total (已改為 type="text" 並靠左) -->
             <div class="input-group">
                 <label for="paymentTotal" class="block text-sm font-medium text-gray-700">Payment Total</label>
-                <input type="number" id="paymentTotal" placeholder="0" value=""
-                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out text-lg font-mono">
+                <input type="text" id="paymentTotal" placeholder="0" value=""
+                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out text-lg font-mono text-left">
             </div>
 
-            <!-- 預售結帳 -->
+            <!-- 預售結帳 (已改為 type="text" 並靠左) -->
             <div class="input-group">
                 <label for="preSaleSettlement" class="block text-sm font-medium text-gray-700">預售結帳</label>
-                <input type="number" id="preSaleSettlement" placeholder="0" value=""
-                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out text-lg font-mono">
+                <input type="text" id="preSaleSettlement" placeholder="0" value=""
+                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out text-lg font-mono text-left">
             </div>
 
-            <!-- AC+ (原 代收代付) -->
+            <!-- AC+ (已改為 type="text" 並靠左) -->
             <div class="input-group">
                 <label for="acPlus" class="block text-sm font-medium text-gray-700">AC+</label>
-                <input type="number" id="acPlus" placeholder="0" value=""
-                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out text-lg font-mono">
+                <input type="text" id="acPlus" placeholder="0" value=""
+                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out text-lg font-mono text-left">
             </div>
 
-            <!-- SKM -->
+            <!-- SKM (已改為 type="text" 並靠左) -->
             <div class="input-group">
                 <label for="skmAmount" class="block text-sm font-medium text-gray-700">SKM</label>
-                <input type="number" id="skmAmount" placeholder="0" value=""
-                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out text-lg font-mono">
+                <input type="text" id="skmAmount" placeholder="0" value=""
+                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out text-lg font-mono text-left">
             </div>
             
-            <!-- 新增 外帳 欄位 -->
+            <!-- 外帳 (已改為 type="text" 並靠左) -->
             <div class="input-group">
                 <label for="externalAccount" class="block text-sm font-medium text-gray-700">外帳</label>
-                <input type="number" id="externalAccount" placeholder="0" value=""
-                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out text-lg font-mono">
+                <input type="text" id="externalAccount" placeholder="0" value=""
+                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out text-lg font-mono text-left">
             </div>
         </div>
 
@@ -121,18 +121,52 @@
         const STATUS_EL = document.getElementById('reconciliation-status');
         const LOADING_EL = document.getElementById('loading-status');
         
+        // --- Helper 函數：處理數字格式化 ---
+
+        /**
+         * 移除數字字串中的所有非數字字符（包含千分位符號），但保留小數點和負號。
+         * @param {string | number} value - 待清理的值。
+         * @returns {string} 清理後的數字字串。
+         */
+        function unformatNumber(value) {
+            if (typeof value !== 'string') value = String(value);
+            // 允許數字、小數點和開頭的負號
+            const cleaned = value.replace(/,/g, ''); // 移除所有逗號
+            return cleaned.replace(/[^0-9.-]/g, '');
+        }
+
+        /**
+         * 將數字或數字字串格式化為帶有千位數分隔符號的字串。
+         * @param {string | number} value - 待格式化的值。
+         * @returns {string} 帶有千分位符號的字串。
+         */
+        function formatNumberWithCommas(value) {
+            const cleanedValue = unformatNumber(value);
+            if (cleanedValue === '' || cleanedValue === '-') return cleanedValue;
+
+            // 使用 Intl.NumberFormat 確保準確的千分位格式
+            // 使用 'en-US' 確保使用逗號作為千分位分隔符
+            return new Intl.NumberFormat('en-US').format(parseFloat(cleanedValue));
+        }
+
         // --- 2. 核心計算邏輯 ---
         function calculateDifference() {
-            // 從輸入框獲取數值，如果為空則視為 0
-            const paymentTotal = parseFloat(document.getElementById('paymentTotal').value) || 0;
-            const preSaleSettlement = parseFloat(document.getElementById('preSaleSettlement').value) || 0;
-            const acPlus = parseFloat(document.getElementById('acPlus').value) || 0;
-            const skmAmount = parseFloat(document.getElementById('skmAmount').value) || 0;
-            const externalAccount = parseFloat(document.getElementById('externalAccount').value) || 0;
+            // 從輸入框獲取數值 (先去除千分位符號)，如果為空則視為 0
+            const paymentTotalStr = unformatNumber(document.getElementById('paymentTotal').value);
+            const preSaleSettlementStr = unformatNumber(document.getElementById('preSaleSettlement').value);
+            const acPlusStr = unformatNumber(document.getElementById('acPlus').value);
+            const skmAmountStr = unformatNumber(document.getElementById('skmAmount').value);
+            const externalAccountStr = unformatNumber(document.getElementById('externalAccount').value);
+
+            // 轉換為浮點數進行計算
+            const paymentTotal = parseFloat(paymentTotalStr) || 0;
+            const preSaleSettlement = parseFloat(preSaleSettlementStr) || 0;
+            const acPlus = parseFloat(acPlusStr) || 0;
+            const skmAmount = parseFloat(skmAmountStr) || 0;
+            const externalAccount = parseFloat(externalAccountStr) || 0;
 
             // 計算差異：Payment Total 減去所有費用項目
             // 差異 = Payment Total - 預售結帳 - AC+ - SKM - 外帳
-            // 這與「Payment Total - 預售結帳 - AC+ = SKM + 外帳」相等 (當差異為 0 時)
             const difference = paymentTotal - preSaleSettlement - acPlus - skmAmount - externalAccount;
 
             // 確保只取兩位小數點，避免浮點數誤差
@@ -143,6 +177,7 @@
         function updateUI() {
             const difference = calculateDifference();
             
+            // 差異顯示也套用千分位符號
             DIFF_VALUE_EL.textContent = difference.toLocaleString('en-US');
 
             DIFF_VALUE_EL.classList.remove('bg-green-100', 'bg-red-100', 'text-green-800', 'text-red-800', 'text-gray-600');
@@ -182,8 +217,11 @@
 
             const dataToSave = {};
             INPUT_IDS.forEach(id => {
-                // 如果欄位是空白，則儲存 0，否則儲存數字
-                const value = parseFloat(document.getElementById(id).value) || 0;
+                const inputEl = document.getElementById(id);
+                // 1. unformat the string (去除千分位符號)
+                const unformattedStr = unformatNumber(inputEl.value);
+                // 2. convert to number for storage (儲存純數字)
+                const value = parseFloat(unformattedStr) || 0;
                 dataToSave[id] = value;
             });
 
@@ -209,8 +247,14 @@
                     INPUT_IDS.forEach(id => {
                         const inputEl = document.getElementById(id);
                         if (data[id] !== undefined && inputEl) {
-                            // 載入時，如果值為 0，則顯示空白
-                            inputEl.value = data[id] === 0 ? '' : data[id];
+                            const numericValue = data[id];
+                            if (numericValue !== 0) {
+                                // 載入時，套用千分位符號格式
+                                inputEl.value = formatNumberWithCommas(numericValue);
+                            } else {
+                                // 如果為 0，則顯示空白
+                                inputEl.value = '';
+                            }
                         }
                     });
                     console.log("Data loaded from Firestore successfully.");
@@ -232,12 +276,29 @@
             INPUT_IDS.forEach(id => {
                 const inputEl = document.getElementById(id);
                 if (inputEl) {
-                    // 監聽輸入變化，即時更新 UI 並儲存數據
-                    inputEl.addEventListener('input', () => {
+                    // 監聽輸入變化，即時更新 UI 和格式
+                    inputEl.addEventListener('input', function() {
+                        // 1. 取得當前游標位置
+                        const caretPos = this.selectionStart;
+                        // 2. 計算游標前舊逗號的數量
+                        const oldCommas = (this.value.substring(0, caretPos).match(/,/g) || []).length;
+                        
+                        // 3. 格式化數值
+                        const cleanedValue = unformatNumber(this.value);
+                        const formattedValue = formatNumberWithCommas(cleanedValue);
+                        this.value = formattedValue;
+                        
+                        // 4. 計算格式化後新的游標位置
+                        const newCommas = (this.value.substring(0, this.selectionStart).match(/,/g) || []).length;
+                        const newCaretPos = caretPos + (newCommas - oldCommas);
+                        // 避免游標跑到邊界外
+                        this.setSelectionRange(newCaretPos, newCaretPos);
+
+                        // 更新計算和儲存
                         updateUI();
                         // 使用 setTimeout 進行簡單的去抖動 (debounce) 以減少寫入次數
-                        clearTimeout(inputEl.saveTimer);
-                        inputEl.saveTimer = setTimeout(saveData, 500);
+                        clearTimeout(this.saveTimer);
+                        this.saveTimer = setTimeout(saveData, 500);
                     });
                 }
             });

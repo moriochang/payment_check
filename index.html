@@ -35,7 +35,7 @@
         <div class="bg-indigo-50 border-l-4 border-indigo-500 text-indigo-800 p-4 rounded-lg mb-6">
             <p class="font-bold mb-1">對帳目標：差異為 0</p>
             <!-- 更新公式顯示 -->
-            <p class="text-sm font-semibold">對帳公式：Payment Total - 預售結帳 - AC+ = SKM + 外帳</p>
+            <p class="text-sm font-semibold">對帳公式：Payment Total - 預售結帳 - AC+ = (SKM1 + SKM2) + 外帳</p>
             <ul class="list-disc list-inside mt-2 text-sm space-y-1">
                 <li><span class="font-bold text-green-700">差異為 +</span>: 新光少收錢 (或明細未退)</li>
                 <li><span class="font-bold text-red-700">差異為 -</span>: 新光多收錢 (或明細未入)</li>
@@ -43,35 +43,42 @@
         </div>
 
         <div id="inputs-container" class="space-y-4">
-            <!-- Payment Total (已改為 type="text" 並靠左) -->
+            <!-- Payment Total -->
             <div class="input-group">
                 <label for="paymentTotal" class="block text-sm font-medium text-gray-700">Payment Total</label>
                 <input type="text" id="paymentTotal" placeholder="0" value=""
                     class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out text-lg font-mono text-left">
             </div>
 
-            <!-- 預售結帳 (已改為 type="text" 並靠左) -->
+            <!-- 預售結帳 -->
             <div class="input-group">
                 <label for="preSaleSettlement" class="block text-sm font-medium text-gray-700">預售結帳</label>
                 <input type="text" id="preSaleSettlement" placeholder="0" value=""
                     class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out text-lg font-mono text-left">
             </div>
 
-            <!-- AC+ (已改為 type="text" 並靠左) -->
+            <!-- AC+ -->
             <div class="input-group">
                 <label for="acPlus" class="block text-sm font-medium text-gray-700">AC+</label>
                 <input type="text" id="acPlus" placeholder="0" value=""
                     class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out text-lg font-mono text-left">
             </div>
 
-            <!-- SKM (已改為 type="text" 並靠左) -->
+            <!-- SKM1 (原 SKM) -->
             <div class="input-group">
-                <label for="skmAmount" class="block text-sm font-medium text-gray-700">SKM</label>
-                <input type="text" id="skmAmount" placeholder="0" value=""
+                <label for="skm1Amount" class="block text-sm font-medium text-gray-700">SKM1</label>
+                <input type="text" id="skm1Amount" placeholder="0" value=""
                     class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out text-lg font-mono text-left">
             </div>
             
-            <!-- 外帳 (已改為 type="text" 並靠左) -->
+            <!-- 新增 SKM2 欄位 -->
+            <div class="input-group">
+                <label for="skm2Amount" class="block text-sm font-medium text-gray-700">SKM2</label>
+                <input type="text" id="skm2Amount" placeholder="0" value=""
+                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out text-lg font-mono text-left">
+            </div>
+            
+            <!-- 外帳 -->
             <div class="input-group">
                 <label for="externalAccount" class="block text-sm font-medium text-gray-700">外帳</label>
                 <input type="text" id="externalAccount" placeholder="0" value=""
@@ -116,7 +123,7 @@
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
         // 更新 INPUT_IDS 以包含所有欄位
-        const INPUT_IDS = ['paymentTotal', 'preSaleSettlement', 'acPlus', 'skmAmount', 'externalAccount'];
+        const INPUT_IDS = ['paymentTotal', 'preSaleSettlement', 'acPlus', 'skm1Amount', 'skm2Amount', 'externalAccount'];
         const DIFF_VALUE_EL = document.getElementById('difference-value');
         const STATUS_EL = document.getElementById('reconciliation-status');
         const LOADING_EL = document.getElementById('loading-status');
@@ -155,19 +162,21 @@
             const paymentTotalStr = unformatNumber(document.getElementById('paymentTotal').value);
             const preSaleSettlementStr = unformatNumber(document.getElementById('preSaleSettlement').value);
             const acPlusStr = unformatNumber(document.getElementById('acPlus').value);
-            const skmAmountStr = unformatNumber(document.getElementById('skmAmount').value);
+            const skm1AmountStr = unformatNumber(document.getElementById('skm1Amount').value); // 新 ID
+            const skm2AmountStr = unformatNumber(document.getElementById('skm2Amount').value); // 新 ID
             const externalAccountStr = unformatNumber(document.getElementById('externalAccount').value);
 
             // 轉換為浮點數進行計算
             const paymentTotal = parseFloat(paymentTotalStr) || 0;
             const preSaleSettlement = parseFloat(preSaleSettlementStr) || 0;
             const acPlus = parseFloat(acPlusStr) || 0;
-            const skmAmount = parseFloat(skmAmountStr) || 0;
+            const skm1Amount = parseFloat(skm1AmountStr) || 0;
+            const skm2Amount = parseFloat(skm2AmountStr) || 0;
             const externalAccount = parseFloat(externalAccountStr) || 0;
 
             // 計算差異：Payment Total 減去所有費用項目
-            // 差異 = Payment Total - 預售結帳 - AC+ - SKM - 外帳
-            const difference = paymentTotal - preSaleSettlement - acPlus - skmAmount - externalAccount;
+            // 差異 = Payment Total - 預售結帳 - AC+ - (SKM1 + SKM2) - 外帳
+            const difference = paymentTotal - preSaleSettlement - acPlus - (skm1Amount + skm2Amount) - externalAccount;
 
             // 確保只取兩位小數點，避免浮點數誤差
             return parseFloat(difference.toFixed(2));

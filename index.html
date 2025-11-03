@@ -34,8 +34,8 @@
         <!-- 說明區塊 -->
         <div class="bg-indigo-50 border-l-4 border-indigo-500 text-indigo-800 p-4 rounded-lg mb-6">
             <p class="font-bold mb-1">對帳目標：差異為 0</p>
-            <!-- 更新公式顯示 -->
-            <p class="text-sm font-semibold">對帳公式：Payment Total - 預售結帳 - AC+ = (SKM1 + SKM2) + 外帳</p>
+            <!-- 更新公式顯示，包含 SKM 熟客 -->
+            <p class="text-sm font-semibold">對帳公式：(Payment Total - 預售結帳 - AC+) 應等於 (SKM1 + SKM2 + SKM 熟客 + 外帳)</p>
             <ul class="list-disc list-inside mt-2 text-sm space-y-1">
                 <li><span class="font-bold text-green-700">差異為 +</span>: 新光少收錢 (或明細未退)</li>
                 <li><span class="font-bold text-red-700">差異為 -</span>: 新光多收錢 (或明細未入)</li>
@@ -43,9 +43,14 @@
         </div>
 
         <div id="inputs-container" class="space-y-4">
+            
+            <!-- 新增 POS 標題 -->
+            <h2 class="text-xl font-bold text-indigo-700 pt-2 border-t border-gray-200">POS</h2>
+            
             <!-- Payment Total -->
             <div class="input-group">
                 <label for="paymentTotal" class="block text-sm font-medium text-gray-700">Payment Total</label>
+                <!-- 注意：輸入欄位不再自動加入千分位符號 -->
                 <input type="text" id="paymentTotal" placeholder="0" value=""
                     class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out text-lg font-mono text-left">
             </div>
@@ -63,17 +68,20 @@
                 <input type="text" id="acPlus" placeholder="0" value=""
                     class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out text-lg font-mono text-left">
             </div>
+            
+            <!-- 新增 新光 (SKM) 標題 -->
+            <h2 class="text-xl font-bold text-indigo-700 pt-2 border-t border-gray-200">新光 (SKM)</h2>
 
             <!-- SKM1 (原 SKM) -->
             <div class="input-group">
-                <label for="skm1Amount" class="block text-sm font-medium text-gray-700">SKM1</label>
+                <label for="skm1Amount" class="block text-sm font-medium text-gray-700">SKM 1</label>
                 <input type="text" id="skm1Amount" placeholder="0" value=""
                     class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out text-lg font-mono text-left">
             </div>
             
-            <!-- 新增 SKM2 欄位 -->
+            <!-- SKM2 欄位 -->
             <div class="input-group">
-                <label for="skm2Amount" class="block text-sm font-medium text-gray-700">SKM2</label>
+                <label for="skm2Amount" class="block text-sm font-medium text-gray-700">SKM 2</label>
                 <input type="text" id="skm2Amount" placeholder="0" value=""
                     class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out text-lg font-mono text-left">
             </div>
@@ -82,6 +90,13 @@
             <div class="input-group">
                 <label for="externalAccount" class="block text-sm font-medium text-gray-700">外帳</label>
                 <input type="text" id="externalAccount" placeholder="0" value=""
+                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out text-lg font-mono text-left">
+            </div>
+
+            <!-- 新增 skm熟客 欄位 -->
+            <div class="input-group">
+                <label for="skmLoyalCustomer" class="block text-sm font-medium text-gray-700">SKM 熟客</label>
+                <input type="text" id="skmLoyalCustomer" placeholder="0" value=""
                     class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out text-lg font-mono text-left">
             </div>
         </div>
@@ -122,8 +137,8 @@
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
-        // 更新 INPUT_IDS 以包含所有欄位
-        const INPUT_IDS = ['paymentTotal', 'preSaleSettlement', 'acPlus', 'skm1Amount', 'skm2Amount', 'externalAccount'];
+        // 更新 INPUT_IDS 以包含所有欄位，包括新增的 skmLoyalCustomer
+        const INPUT_IDS = ['paymentTotal', 'preSaleSettlement', 'acPlus', 'skm1Amount', 'skm2Amount', 'externalAccount', 'skmLoyalCustomer'];
         const DIFF_VALUE_EL = document.getElementById('difference-value');
         const STATUS_EL = document.getElementById('reconciliation-status');
         const LOADING_EL = document.getElementById('loading-status');
@@ -162,9 +177,11 @@
             const paymentTotalStr = unformatNumber(document.getElementById('paymentTotal').value);
             const preSaleSettlementStr = unformatNumber(document.getElementById('preSaleSettlement').value);
             const acPlusStr = unformatNumber(document.getElementById('acPlus').value);
-            const skm1AmountStr = unformatNumber(document.getElementById('skm1Amount').value); // 新 ID
-            const skm2AmountStr = unformatNumber(document.getElementById('skm2Amount').value); // 新 ID
+            const skm1AmountStr = unformatNumber(document.getElementById('skm1Amount').value); 
+            const skm2AmountStr = unformatNumber(document.getElementById('skm2Amount').value); 
             const externalAccountStr = unformatNumber(document.getElementById('externalAccount').value);
+            // 讀取新增的 SKM 熟客
+            const skmLoyalCustomerStr = unformatNumber(document.getElementById('skmLoyalCustomer').value); 
 
             // 轉換為浮點數進行計算
             const paymentTotal = parseFloat(paymentTotalStr) || 0;
@@ -173,10 +190,12 @@
             const skm1Amount = parseFloat(skm1AmountStr) || 0;
             const skm2Amount = parseFloat(skm2AmountStr) || 0;
             const externalAccount = parseFloat(externalAccountStr) || 0;
+            const skmLoyalCustomer = parseFloat(skmLoyalCustomerStr) || 0; // 新增轉換
 
-            // 計算差異：Payment Total 減去所有費用項目
-            // 差異 = Payment Total - 預售結帳 - AC+ - (SKM1 + SKM2) - 外帳
-            const difference = paymentTotal - preSaleSettlement - acPlus - (skm1Amount + skm2Amount) - externalAccount;
+            // 計算差異：(Payment Total - 預售結帳 - AC+) - (SKM1 + SKM2 + SKM 熟客 + 外帳)
+            const difference = paymentTotal
+                             - (preSaleSettlement + acPlus)
+                             - (skm1Amount + skm2Amount + skmLoyalCustomer + externalAccount);
 
             // 確保只取兩位小數點，避免浮點數誤差
             return parseFloat(difference.toFixed(2));
@@ -186,7 +205,7 @@
         function updateUI() {
             const difference = calculateDifference();
             
-            // 差異顯示也套用千分位符號
+            // 差異顯示仍套用千分位符號 (讓輸出結果易讀)
             DIFF_VALUE_EL.textContent = difference.toLocaleString('en-US');
 
             DIFF_VALUE_EL.classList.remove('bg-green-100', 'bg-red-100', 'text-green-800', 'text-red-800', 'text-gray-600');
@@ -258,8 +277,8 @@
                         if (data[id] !== undefined && inputEl) {
                             const numericValue = data[id];
                             if (numericValue !== 0) {
-                                // 載入時，套用千分位符號格式
-                                inputEl.value = formatNumberWithCommas(numericValue);
+                                // 載入時，不再套用千分位符號格式，直接顯示純數字
+                                inputEl.value = numericValue.toString();
                             } else {
                                 // 如果為 0，則顯示空白
                                 inputEl.value = '';
@@ -287,21 +306,14 @@
                 if (inputEl) {
                     // 監聽輸入變化，即時更新 UI 和格式
                     inputEl.addEventListener('input', function() {
-                        // 1. 取得當前游標位置
                         const caretPos = this.selectionStart;
-                        // 2. 計算游標前舊逗號的數量
-                        const oldCommas = (this.value.substring(0, caretPos).match(/,/g) || []).length;
                         
-                        // 3. 格式化數值
+                        // 1. 移除所有非數字字符，實現「不顯示千分位符號」的要求
                         const cleanedValue = unformatNumber(this.value);
-                        const formattedValue = formatNumberWithCommas(cleanedValue);
-                        this.value = formattedValue;
+                        this.value = cleanedValue;
                         
-                        // 4. 計算格式化後新的游標位置
-                        const newCommas = (this.value.substring(0, this.selectionStart).match(/,/g) || []).length;
-                        const newCaretPos = caretPos + (newCommas - oldCommas);
-                        // 避免游標跑到邊界外
-                        this.setSelectionRange(newCaretPos, newCaretPos);
+                        // 2. 嘗試保留游標位置（由於我們只移除字符，這會相對簡單）
+                        this.setSelectionRange(caretPos, caretPos);
 
                         // 更新計算和儲存
                         updateUI();

@@ -24,16 +24,22 @@
         input[type=number] {
             -moz-appearance: textfield;
         }
-        /* 專業數字字體：使用等寬字體堆棧，確保數字對齊且 0 呈現清晰 */
-        .financial-input {
-            /* 使用標準化的 Monospace 字體，它們通常會讓 0 帶有斜線或點以區分字母 O */
-            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
-            font-size: 1.125rem; /* text-lg */
-            font-weight: 600; /* font-semibold */
-        }
+        /* 移除自定義的 financial-input，讓數字使用標準字體 (無斜線的 0) */
+        
         /* 特別為 Payment Total 調整深色背景下的高亮色 */
         .bg-blue-950 {
             background-color: #070e1b;
+        }
+        /* 數字輸入框使用標準的無襯線字體 stack，顯示正常的 0 */
+        .standard-digit-input {
+            font-family: 'Inter', sans-serif; /* 使用 Inter 或系統預設的無襯線字體 */
+            font-size: 1.25rem; /* text-xl */
+            font-weight: 700; /* font-bold */
+        }
+        /* 差異顯示區的數字也使用標準字體 */
+        .difference-digit-display {
+            font-family: 'Inter', sans-serif;
+            font-weight: 900; /* font-extrabold */
         }
     </style>
 </head>
@@ -63,7 +69,7 @@
                 <div class="input-group col-span-3">
                     <label for="paymentTotal" class="block text-sm font-medium text-slate-300">Payment Total</label>
                     <input type="text" id="paymentTotal" value="0"
-                        class="mt-1 block w-full px-4 py-3 border border-slate-600 rounded-lg shadow-inner focus:ring-blue-400 focus:border-blue-400 transition duration-150 ease-in-out financial-input text-left bg-blue-950 text-white font-bold">
+                        class="mt-1 block w-full px-4 py-3 border border-slate-600 rounded-lg shadow-inner focus:ring-blue-400 focus:border-blue-400 transition duration-150 ease-in-out standard-digit-input text-left bg-blue-950 text-white font-bold">
                 </div>
             </div>
 
@@ -71,13 +77,13 @@
                 <div class="input-group">
                     <label for="preSaleSettlement" class="block text-sm font-medium text-slate-300">預售結帳 (減項)</label>
                     <input type="text" id="preSaleSettlement" value="0"
-                        class="mt-1 block w-full px-4 py-3 border border-slate-600 rounded-lg shadow-sm focus:ring-blue-400 focus:border-blue-400 transition duration-150 ease-in-out financial-input text-left bg-slate-700 text-white">
+                        class="mt-1 block w-full px-4 py-3 border border-slate-600 rounded-lg shadow-sm focus:ring-blue-400 focus:border-blue-400 transition duration-150 ease-in-out standard-digit-input text-left bg-slate-700 text-white">
                 </div>
 
                 <div class="input-group">
                     <label for="acPlus" class="block text-sm font-medium text-slate-300">AC+ (減項)</label>
                     <input type="text" id="acPlus" value="0"
-                        class="mt-1 block w-full px-4 py-3 border border-slate-600 rounded-lg shadow-sm focus:ring-blue-400 focus:border-blue-400 transition duration-150 ease-in-out financial-input text-left bg-slate-700 text-white">
+                        class="mt-1 block w-full px-4 py-3 border border-slate-600 rounded-lg shadow-sm focus:ring-blue-400 focus:border-blue-400 transition duration-150 ease-in-out standard-digit-input text-left bg-slate-700 text-white">
                 </div>
             </div>
             
@@ -87,25 +93,25 @@
                 <div class="input-group">
                     <label for="skm1Amount" class="block text-sm font-medium text-slate-300">SKM 1</label>
                     <input type="text" id="skm1Amount" value="0"
-                        class="mt-1 block w-full px-4 py-3 border border-slate-600 rounded-lg shadow-sm focus:ring-blue-400 focus:border-blue-400 transition duration-150 ease-in-out financial-input text-left bg-slate-700 text-white">
+                        class="mt-1 block w-full px-4 py-3 border border-slate-600 rounded-lg shadow-sm focus:ring-blue-400 focus:border-blue-400 transition duration-150 ease-in-out standard-digit-input text-left bg-slate-700 text-white">
                 </div>
                 
                 <div class="input-group">
                     <label for="skm2Amount" class="block text-sm font-medium text-slate-300">SKM 2</label>
                     <input type="text" id="skm2Amount" value="0"
-                        class="mt-1 block w-full px-4 py-3 border border-slate-600 rounded-lg shadow-sm focus:ring-blue-400 focus:border-blue-400 transition duration-150 ease-in-out financial-input text-left bg-slate-700 text-white">
+                        class="mt-1 block w-full px-4 py-3 border border-slate-600 rounded-lg shadow-sm focus:ring-blue-400 focus:border-blue-400 transition duration-150 ease-in-out standard-digit-input text-left bg-slate-700 text-white">
                 </div>
 
                 <div class="input-group">
                     <label for="skmLoyalCustomer" class="block text-sm font-medium text-slate-300">SKM 熟客</label>
                     <input type="text" id="skmLoyalCustomer" value="0"
-                        class="mt-1 block w-full px-4 py-3 border border-slate-600 rounded-lg shadow-sm focus:ring-blue-400 focus:border-blue-400 transition duration-150 ease-in-out financial-input text-left bg-slate-700 text-white">
+                        class="mt-1 block w-full px-4 py-3 border border-slate-600 rounded-lg shadow-sm focus:ring-blue-400 focus:border-blue-400 transition duration-150 ease-in-out standard-digit-input text-left bg-slate-700 text-white">
                 </div>
                 
                 <div class="input-group">
                     <label for="externalAccount" class="block text-sm font-medium text-slate-300">外帳</label>
                     <input type="text" id="externalAccount" value="0"
-                        class="mt-1 block w-full px-4 py-3 border border-slate-600 rounded-lg shadow-sm focus:ring-blue-400 focus:border-blue-400 transition duration-150 ease-in-out financial-input text-left bg-slate-700 text-white">
+                        class="mt-1 block w-full px-4 py-3 border border-slate-600 rounded-lg shadow-sm focus:ring-blue-400 focus:border-blue-400 transition duration-150 ease-in-out standard-digit-input text-left bg-slate-700 text-white">
                 </div>
             </div>
         </div>
@@ -113,7 +119,7 @@
         <div class="mt-10 pt-6 border-t border-blue-500">
             <h2 class="text-xl font-bold text-white mb-4 text-center">🎉 最終對帳結果 🎉</h2>
             <div id="difference-display" class="p-6 rounded-xl shadow-xl text-center transition duration-300 ease-in-out bg-slate-700 border border-blue-500">
-                <p class="text-7xl font-extrabold financial-input transition-colors duration-300 text-white" id="difference-value">0</p>
+                <p class="text-7xl difference-digit-display transition-colors duration-300 text-white" id="difference-value">0</p>
             </div>
             <p id="reconciliation-status" class="mt-4 text-center text-xl font-semibold text-slate-200"></p>
         </div>

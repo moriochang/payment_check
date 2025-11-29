@@ -3,110 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>對帳小工具</title>
+    <title>專業財務對帳計算機</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
     <style>
         /* 確保字體為 Inter */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
+            /* 調整為更柔和的淺灰色背景，增加專業感 */
+            background-color: #f7f9fb; 
         }
-        /* 隱藏 Chrome/Safari 的數字輸入框箭頭 (雖然已改為 text，但保留以防萬一) */
+        /* 隱藏數字輸入框箭頭 */
         input[type=number]::-webkit-inner-spin-button,
         input[type=number]::-webkit-outer-spin-button {
             -webkit-appearance: none;
             margin: 0;
         }
-        /* 隱藏 Firefox 的數字輸入框箭頭 */
         input[type=number] {
             -moz-appearance: textfield;
+        }
+        /* 專業數字字體：確保數字等寬對齊 */
+        .financial-input {
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+            /* 調整字體大小和粗細以提高可讀性 */
+            font-size: 1.125rem; /* text-lg */
+            font-weight: 600; /* font-semibold */
         }
     </style>
 </head>
 <body class="p-4 sm:p-8 min-h-screen flex items-center justify-center">
 
-    <div id="app-container" class="w-full max-w-xl bg-white shadow-2xl rounded-xl p-6 sm:p-8">
-        <h1 class="text-3xl font-extrabold text-gray-900 mb-6 text-center">
-            🧾 對帳計算機
+    <div id="app-container" class="w-full max-w-xl bg-white shadow-2xl rounded-2xl p-6 sm:p-8 border border-gray-100">
+        <h1 class="text-3xl font-extrabold text-slate-900 mb-6 text-center border-b pb-3 border-slate-100">
+            📊 財務對帳計算儀表板
         </h1>
 
-        <div class="bg-indigo-50 border-l-4 border-indigo-500 text-indigo-800 p-4 rounded-lg mb-6">
-            <p class="font-bold mb-2">對帳目標：差異為 0</p>
-            <p class="text-sm font-semibold italic text-gray-700">
-                公式：(Payment Total - 預售結帳 - AC+)  -  (SKM1 + SKM2 + SKM 熟客 + 外帳)  =  差異
+        <div class="bg-blue-50 border-l-4 border-blue-600 text-blue-900 p-4 rounded-lg mb-6 shadow-sm">
+            <p class="font-bold mb-2 text-lg">對帳目標：<span class="text-green-600">差異為 0</span></p>
+            <p class="text-sm font-medium italic text-gray-700">
+                公式：(POS 收入) - (預售結帳 + AC+) - (SKM1 + SKM2 + 熟客 + 外帳) = 差異
             </p>
-            <ul class="list-disc list-inside mt-2 text-sm space-y-1">
-                <li class="text-green-700"><span class="font-bold">差異為 + (正值)</span>: 新光少收錢 (或明細未退)</li>
-                <li class="text-red-700"><span class="font-bold">差異為 - (負值)</span>: 新光多收錢 (或明細未入)</li>
+            <ul class="list-disc list-inside mt-3 text-sm space-y-1">
+                <li class="text-green-700"><span class="font-bold">正值 (+)</span>: 新光少收錢 (需補明細退款)</li>
+                <li class="text-red-700"><span class="font-bold">負值 (-)</span>: 新光多收錢 (需補明細入帳)</li>
             </ul>
         </div>
 
         <div id="inputs-container" class="space-y-4">
             
-            <h2 class="text-xl font-bold text-indigo-700 pt-4 mb-2">POS 銷貨</h2>
+            <h2 class="text-xl font-bold text-blue-700 pt-4 mb-2 border-t border-gray-200">POS 銷貨項目 (收入)</h2>
             <div class="grid grid-cols-3 gap-4">
                 
                 <div class="input-group col-span-3">
                     <label for="paymentTotal" class="block text-sm font-medium text-gray-700">Payment Total</label>
-                    <input type="text" id="paymentTotal" value=""
-                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out text-lg font-mono text-left bg-indigo-50 font-bold">
+                    <input type="text" id="paymentTotal" value="0"
+                        class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-inner focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out financial-input text-left bg-blue-50 font-bold">
                 </div>
             </div>
 
             <div class="grid grid-cols-2 gap-4">
                 <div class="input-group">
-                    <label for="preSaleSettlement" class="block text-sm font-medium text-gray-700">預售結帳 (-)</label>
-                    <input type="text" id="preSaleSettlement" value=""
-                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out text-lg font-mono text-left">
+                    <label for="preSaleSettlement" class="block text-sm font-medium text-gray-700">預售結帳 (減項)</label>
+                    <input type="text" id="preSaleSettlement" value="0"
+                        class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out financial-input text-left">
                 </div>
 
                 <div class="input-group">
-                    <label for="acPlus" class="block text-sm font-medium text-gray-700">AC+ (-)</label>
-                    <input type="text" id="acPlus" value=""
-                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out text-lg font-mono text-left">
+                    <label for="acPlus" class="block text-sm font-medium text-gray-700">AC+ (減項)</label>
+                    <input type="text" id="acPlus" value="0"
+                        class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out financial-input text-left">
                 </div>
             </div>
             
-            <h2 class="text-xl font-bold text-indigo-700 pt-4 border-t border-gray-200 mt-6 mb-2">新光 (SKM) / 外帳</h2>
+            <h2 class="text-xl font-bold text-blue-700 pt-4 border-t border-gray-200 mt-6 mb-2">新光/外帳 (應收項目)</h2>
             
             <div class="grid grid-cols-2 gap-4">
                 <div class="input-group">
-                    <label for="skm1Amount" class="block text-sm font-medium text-gray-700">SKM 1 (=)</label>
-                    <input type="text" id="skm1Amount" value=""
-                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out text-lg font-mono text-left">
+                    <label for="skm1Amount" class="block text-sm font-medium text-gray-700">SKM 1</label>
+                    <input type="text" id="skm1Amount" value="0"
+                        class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out financial-input text-left">
                 </div>
                 
                 <div class="input-group">
-                    <label for="skm2Amount" class="block text-sm font-medium text-gray-700">SKM 2 (=)</label>
-                    <input type="text" id="skm2Amount" value=""
-                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out text-lg font-mono text-left">
+                    <label for="skm2Amount" class="block text-sm font-medium text-gray-700">SKM 2</label>
+                    <input type="text" id="skm2Amount" value="0"
+                        class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out financial-input text-left">
                 </div>
 
                 <div class="input-group">
-                    <label for="skmLoyalCustomer" class="block text-sm font-medium text-gray-700">SKM 熟客 (=)</label>
-                    <input type="text" id="skmLoyalCustomer" value=""
-                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out text-lg font-mono text-left">
+                    <label for="skmLoyalCustomer" class="block text-sm font-medium text-gray-700">SKM 熟客</label>
+                    <input type="text" id="skmLoyalCustomer" value="0"
+                        class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out financial-input text-left">
                 </div>
                 
                 <div class="input-group">
-                    <label for="externalAccount" class="block text-sm font-medium text-gray-700">外帳 (=)</label>
-                    <input type="text" id="externalAccount" value=""
-                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out text-lg font-mono text-left">
+                    <label for="externalAccount" class="block text-sm font-medium text-gray-700">外帳</label>
+                    <input type="text" id="externalAccount" value="0"
+                        class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out financial-input text-left">
                 </div>
             </div>
         </div>
 
-        <div class="mt-10 pt-6 border-t border-gray-300">
-            <h2 class="text-xl font-bold text-gray-800 mb-3 text-center">🔍 最終差異 (Difference)</h2>
-            <div id="difference-display" class="p-6 rounded-xl shadow-xl text-center transition duration-300 ease-in-out">
-                <p class="text-6xl font-extrabold font-mono transition-colors duration-300" id="difference-value">0</p>
+        <div class="mt-10 pt-6 border-t border-blue-200">
+            <h2 class="text-xl font-bold text-gray-800 mb-4 text-center">🎉 最終對帳結果 🎉</h2>
+            <div id="difference-display" class="p-6 rounded-xl shadow-xl text-center transition duration-300 ease-in-out bg-white border border-blue-300">
+                <p class="text-7xl font-extrabold financial-input transition-colors duration-300" id="difference-value">0</p>
             </div>
-            <p id="reconciliation-status" class="mt-4 text-center text-lg font-semibold"></p>
+            <p id="reconciliation-status" class="mt-4 text-center text-xl font-semibold"></p>
         </div>
 
         <p id="loading-status" class="mt-6 text-center text-sm text-gray-500">
-            <span class="animate-pulse">數據載入中...</span>
+            <span class="animate-pulse">數據同步中...</span>
         </p>
 
     </div>
@@ -196,7 +203,6 @@
             const skmLoyalCustomer = parseFloat(skmLoyalCustomerStr) || 0; 
 
             // 計算差異：(Payment Total - 預售結帳 - AC+) - (SKM1 + SKM2 + SKM 熟客 + 外帳)
-            // 將所有 POS 銷貨相關視為收入，SKM 和外帳視為應付/已收，故為 (POS 收入) - (SKM/外帳 應付)
             const difference = paymentTotal
                              - (preSaleSettlement + acPlus)
                              - (skm1Amount + skm2Amount + skmLoyalCustomer + externalAccount);
@@ -213,27 +219,27 @@
             DIFF_VALUE_EL.textContent = difference.toLocaleString('en-US');
 
             // 移除所有顏色類別
-            DIFF_VALUE_EL.parentElement.classList.remove('bg-green-100', 'bg-red-100', 'bg-gray-100');
+            DIFF_VALUE_EL.parentElement.classList.remove('bg-green-100', 'bg-red-100', 'border-green-400', 'border-red-400', 'border-blue-300');
             DIFF_VALUE_EL.classList.remove('text-green-800', 'text-red-800', 'text-gray-600');
-            STATUS_EL.classList.remove('text-green-600', 'text-red-600', 'text-gray-500');
+            STATUS_EL.classList.remove('text-green-600', 'text-red-600');
 
             if (difference === 0) {
                 // 平帳
-                DIFF_VALUE_EL.parentElement.classList.add('bg-green-100');
+                DIFF_VALUE_EL.parentElement.classList.add('bg-green-100', 'border-green-400');
                 DIFF_VALUE_EL.classList.add('text-green-800');
-                STATUS_EL.textContent = '🥳 恭喜！沒有帳差！';
+                STATUS_EL.textContent = '✅ 恭喜！今日對帳無差異！';
                 STATUS_EL.classList.add('text-green-600');
             } else if (difference > 0) {
                 // 新光少收錢 (或明細未退)
-                DIFF_VALUE_EL.parentElement.classList.add('bg-red-100');
+                DIFF_VALUE_EL.parentElement.classList.add('bg-red-100', 'border-red-400');
                 DIFF_VALUE_EL.classList.add('text-red-800');
-                STATUS_EL.textContent = `🚨 差異 +${difference.toLocaleString('en-US')} (新光少收錢，明細未退)`;
+                STATUS_EL.textContent = `🚨 差異 +${difference.toLocaleString('en-US')} (新光少收錢，需追蹤明細)`;
                 STATUS_EL.classList.add('text-red-600');
             } else {
                 // 新光多收錢 (或明細未入)
-                DIFF_VALUE_EL.parentElement.classList.add('bg-red-100');
+                DIFF_VALUE_EL.parentElement.classList.add('bg-red-100', 'border-red-400');
                 DIFF_VALUE_EL.classList.add('text-red-800');
-                STATUS_EL.textContent = `🚨 差異 ${difference.toLocaleString('en-US')} (新光多收錢，明細未入)`;
+                STATUS_EL.textContent = `🚨 差異 ${difference.toLocaleString('en-US')} (新光多收錢，需追蹤明細)`;
                 STATUS_EL.classList.add('text-red-600');
             }
         }
@@ -289,9 +295,9 @@
                         if (data[id] !== undefined && inputEl) {
                             const numericValue = data[id];
                             
-                            // *** 核心變更：數字 0 顯示為 '0'，而不是空白 ***
+                            // 數字 0 顯示為 '0'
                             if (numericValue !== 0) {
-                                // 載入時，不再套用千分位符號格式，直接顯示純數字
+                                // 載入時，直接顯示純數字
                                 inputEl.value = numericValue.toString();
                             } else {
                                 // 如果為 0，則顯示 '0'
@@ -301,7 +307,7 @@
                     });
                     console.log("Data loaded from Firestore successfully.");
                 } else {
-                    console.log("No data found, using default empty values.");
+                    console.log("No data found, using default '0' values.");
                     // 如果沒有數據，確保所有欄位都設定為 '0'
                     INPUT_IDS.forEach(id => {
                         const inputEl = document.getElementById(id);
@@ -343,6 +349,7 @@
                     
                     // 監聽 blur 事件，確保欄位失焦時，空值會變成 '0'
                     inputEl.addEventListener('blur', function() {
+                        // 處理空值、單個負號或單個小數點的情況
                         if (this.value === '' || this.value === '-' || this.value === '.') {
                             this.value = '0';
                             updateUI(); // 確保 UI 立即更新
@@ -401,8 +408,7 @@
         // 頁面載入完成後執行
         window.onload = function() {
             setupEventListeners();
-            // 在嘗試載入數據前，先進行初始計算和 UI 更新 (使用預設或 HTML 中的值)
-            // 初始值都設定為 '0' (為了符合「數字 0 的部分以正常顯示為主」)
+            // 初始值都設定為 '0'
             INPUT_IDS.forEach(id => {
                 const inputEl = document.getElementById(id);
                 if(inputEl) inputEl.value = '0';

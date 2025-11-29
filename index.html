@@ -59,6 +59,24 @@
             border: 3px solid var(--border-color); 
             animation: pulse-glow 3s infinite alternate; /* Default neutral pulse */
         }
+
+        /* --- 3. 新增左右對齊的分隔線樣式 (僅在大螢幕顯示) --- */
+        @media (min-width: 1024px) {
+            #inputs-container.relative::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                /* 確保分隔線位於兩欄之間的網格間隙正中央 */
+                left: 50%;
+                transform: translateX(-50%); 
+                width: 2px; /* 垂直分隔線寬度 */
+                height: 100%;
+                background-color: var(--neon-cyan);
+                box-shadow: 0 0 5px var(--neon-cyan); /* 霓虹發光 */
+                opacity: 0.5;
+                z-index: 10;
+            }
+        }
         
         /* 標題與重點文字的霓虹發光效果 */
         .neon-text-glow {
@@ -109,11 +127,21 @@
             font-weight: 900;
         }
 
+        /* 隱藏數字輸入框箭頭 */
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
     </style>
 </head>
 <body class="p-4 sm:p-8 min-h-screen flex items-center justify-center">
 
-    <div id="app-container" class="w-full max-w-xl rounded-2xl p-6 sm:p-8">
+    <div id="app-container" class="w-full max-w-2xl rounded-2xl p-6 sm:p-8">
         
         <h1 class="text-3xl font-extrabold text-white mb-6 text-center border-b pb-3 border-gray-700 neon-text-glow">
             📊 F.I.N.A.N.C.E. 對帳儀表板
@@ -130,54 +158,52 @@
             </ul>
         </div>
 
-        <div id="inputs-container" class="space-y-4">
+        <div id="inputs-container" class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-16 relative">
             
-            <h2 class="text-xl font-bold text-white pt-4 mb-2 border-t border-gray-800 neon-text-glow">POS</h2>
-            <div class="grid grid-cols-3 gap-4">
+            <div id="pos-column" class="space-y-4">
+                <h2 class="text-xl font-bold text-white mb-2 neon-text-glow">POS</h2>
                 
-                <div class="input-group col-span-3">
+                <div class="input-group max-w-sm">
                     <label for="paymentTotal" class="block text-sm font-medium text-gray-300">Payment Total (總收入)</label>
                     <input type="text" id="paymentTotal" inputmode="decimal"
                         class="mt-1 block w-full px-4 py-3 border rounded-lg shadow-inner standard-digit-input text-left font-bold">
                 </div>
-            </div>
 
-            <div class="grid grid-cols-2 gap-4">
-                <div class="input-group">
+                <div class="input-group max-w-sm">
                     <label for="preSaleSettlement" class="block text-sm font-medium text-gray-300">預售結帳 (減項)</label>
                     <input type="text" id="preSaleSettlement" inputmode="decimal"
                         class="mt-1 block w-full px-4 py-3 border rounded-lg shadow-sm standard-digit-input text-left">
                 </div>
 
-                <div class="input-group">
+                <div class="input-group max-w-sm">
                     <label for="acPlus" class="block text-sm font-medium text-gray-300">AC+ (減項)</label>
                     <input type="text" id="acPlus" inputmode="decimal"
                         class="mt-1 block w-full px-4 py-3 border rounded-lg shadow-sm standard-digit-input text-left">
                 </div>
             </div>
             
-            <h2 class="text-xl font-bold text-white pt-4 border-t border-gray-800 mt-6 mb-2 neon-text-glow">SKM</h2>
-            
-            <div class="grid grid-cols-2 gap-4">
-                <div class="input-group">
+            <div id="skm-column" class="space-y-4 pt-4 border-t border-gray-800 lg:pt-0 lg:border-t-0">
+                <h2 class="text-xl font-bold text-white mb-2 neon-text-glow">SKM</h2>
+                
+                <div class="input-group max-w-sm">
                     <label for="skm1Amount" class="block text-sm font-medium text-gray-300">SKM 1</label>
                     <input type="text" id="skm1Amount" inputmode="decimal"
                         class="mt-1 block w-full px-4 py-3 border rounded-lg shadow-sm standard-digit-input text-left">
                 </div>
                 
-                <div class="input-group">
+                <div class="input-group max-w-sm">
                     <label for="skm2Amount" class="block text-sm font-medium text-gray-300">SKM 2</label>
                     <input type="text" id="skm2Amount" inputmode="decimal"
                         class="mt-1 block w-full px-4 py-3 border rounded-lg shadow-sm standard-digit-input text-left">
                 </div>
 
-                <div class="input-group">
+                <div class="input-group max-w-sm">
                     <label for="skmLoyalCustomer" class="block text-sm font-medium text-gray-300">SKM 熟客</label>
                     <input type="text" id="skmLoyalCustomer" inputmode="decimal"
                         class="mt-1 block w-full px-4 py-3 border rounded-lg shadow-sm standard-digit-input text-left">
                 </div>
                 
-                <div class="input-group">
+                <div class="input-group max-w-sm">
                     <label for="externalAccount" class="block text-sm font-medium text-gray-300">外帳</label>
                     <input type="text" id="externalAccount" inputmode="decimal"
                         class="mt-1 block w-full px-4 py-3 border rounded-lg shadow-sm standard-digit-input text-left">
@@ -290,7 +316,6 @@
                 STATUS_EL.classList.add('text-slate-200');
                 STATUS_EL.textContent = '請輸入數字以開始對帳...';
                 
-                // 由於容器預設已應用 pulse-glow，這裡不需要特別添加
                 return; 
             }
             

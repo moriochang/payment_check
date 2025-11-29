@@ -3,77 +3,142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>專業財務對帳計算機</title>
+    <title>專業財務對帳計算機 - 終端機模式</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
     <style>
-        /* 確保字體為 Inter */
-        body {
-            font-family: 'Inter', sans-serif;
-            /* 深度深藍色背景 (Tailwind Slate-900) */
-            background-color: #0f172a; 
-            /* 預設文字顏色改為淺色 */
-            color: #e2e8f0; /* Slate-200 */
-        }
-        /* 隱藏數字輸入框箭頭 */
-        input[type=number]::-webkit-inner-spin-button,
-        input[type=number]::-webkit-outer-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        input[type=number] {
-            -moz-appearance: textfield;
-        }
-        
-        /* 數字輸入框使用標準字體 (確保正常的 0) */
-        .standard-digit-input {
-            font-family: 'Inter', sans-serif; 
-            font-size: 1.25rem; /* text-xl */
-            font-weight: 700; /* font-bold */
-        }
-        /* 差異顯示區的數字也使用標準字體 */
-        .difference-digit-display {
-            font-family: 'Inter', sans-serif;
-            font-weight: 900; /* font-extrabold */
+        /* --- 1. 定義霓虹顏色與動畫 Keyframes --- */
+        :root {
+            --neon-cyan: #00ffff; /* Primary active color */
+            --neon-fuchsia: #ff00ff; /* Secondary alert color */
+            --neon-success: #00ff99; /* Success color */
+            --bg-dark: #050505; /* Near Black */
+            --border-color: rgba(0, 255, 255, 0.4);
         }
 
-        /* 調整主要容器背景為更深色，保留終端機配色基調 */
-        #app-container {
-            /* 幾乎純黑 */
-            background-color: #121212; 
-            /* 終端機發光邊框效果 */
-            border: 1px solid #00b4ff20; 
-            box-shadow: 0 0 10px rgba(0, 180, 255, 0.2), 0 0 30px rgba(0, 180, 255, 0.1); 
+        @keyframes flicker {
+            0%, 19.99%, 21.99%, 23.99%, 54.99%, 56.99%, 100% {
+                text-shadow: 0 0 5px var(--neon-cyan), 0 0 15px var(--neon-cyan);
+                opacity: 1;
+            }
+            20%, 22%, 24%, 55%, 57% {
+                text-shadow: none;
+                opacity: 0.8;
+            }
         }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 10px var(--neon-cyan), 0 0 20px rgba(0, 255, 255, 0.5); }
+            50% { box-shadow: 0 0 15px var(--neon-cyan), 0 0 30px rgba(0, 255, 255, 0.8); }
+        }
+        
+        @keyframes error-pulse-glow {
+            0%, 100% { box-shadow: 0 0 10px var(--neon-fuchsia), 0 0 20px rgba(255, 0, 255, 0.5); }
+            50% { box-shadow: 0 0 15px var(--neon-fuchsia), 0 0 30px rgba(255, 0, 255, 0.8); }
+        }
+
+        @keyframes error-shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        /* --- 2. 應用全域樣式與效果 --- */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark); 
+            color: #c0c0c0; /* Standard text color */
+            /* subtle CRT scanline effect */
+            background-image: linear-gradient(rgba(0,0,0,0.2) 1px, transparent 1px);
+            background-size: 100% 4px;
+        }
+
+        /* 應用程式容器：脈衝邊框 */
+        #app-container {
+            background-color: #121212; 
+            border: 3px solid var(--border-color); 
+            animation: pulse-glow 3s infinite alternate; /* Default neutral pulse */
+        }
+        
+        /* 標題與重點文字的霓虹發光效果 */
+        .neon-text-glow {
+            text-shadow: 0 0 5px var(--neon-cyan), 0 0 10px var(--neon-cyan);
+            animation: flicker 4s infinite step-end;
+        }
+        
+        /* 輸入欄位樣式 */
+        .standard-digit-input {
+            font-family: 'Inter', sans-serif; 
+            font-size: 1.25rem;
+            font-weight: 700;
+            background-color: #1a1a1a;
+            color: var(--neon-cyan);
+            border-color: #333;
+            /* 焦點時的霓虹邊框 */
+            transition: box-shadow 0.2s, border-color 0.2s;
+        }
+        .standard-digit-input:focus {
+            outline: none;
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 5px var(--neon-cyan);
+        }
+
+        /* 差異顯示區 */
+        #difference-display {
+            background-color: #000000;
+            border: 3px solid var(--neon-cyan);
+        }
+
+        /* 錯誤警報狀態 */
+        .diff-error-state {
+            border-color: var(--neon-fuchsia) !important;
+            /* 結合搖晃和錯誤脈衝 */
+            animation: error-pulse-glow 1.5s infinite alternate, error-shake 0.2s 3; 
+        }
+
+        /* 成功平帳狀態 */
+        .diff-success-state {
+            border-color: var(--neon-success) !important;
+            box-shadow: 0 0 10px var(--neon-success), 0 0 30px rgba(0, 255, 153, 0.6) !important;
+            animation: none; /* 成功後停止脈衝 */
+        }
+        
+        /* 差異數字本身 */
+        .difference-digit-display {
+            font-family: 'Inter', sans-serif;
+            font-weight: 900;
+        }
+
     </style>
 </head>
 <body class="p-4 sm:p-8 min-h-screen flex items-center justify-center">
 
     <div id="app-container" class="w-full max-w-xl rounded-2xl p-6 sm:p-8">
-        <h1 class="text-3xl font-extrabold text-cyan-400 mb-6 text-center border-b pb-3 border-gray-700">
-            📊 專業財務對帳計算儀表板
+        
+        <h1 class="text-3xl font-extrabold text-white mb-6 text-center border-b pb-3 border-gray-700 neon-text-glow">
+            📊 F.I.N.A.N.C.E. 對帳儀表板
         </h1>
 
-        <div class="bg-gray-800 border-l-4 border-green-500 text-green-300 p-4 rounded-lg mb-6 shadow-md">
-            <p class="font-bold mb-2 text-lg">對帳目標：<span class="text-green-400">差異為 0</span></p>
+        <div class="bg-gray-800 border-l-4 border-[#00ff99] text-[#00ff99] p-4 rounded-lg mb-6 shadow-md">
+            <p class="font-bold mb-2 text-lg">對帳目標：<span class="text-white">差異為 0</span></p>
             <p class="text-sm font-medium italic text-gray-400">
                 公式：(POS 收入) - (預售結帳 + AC+) - (SKM1 + SKM2 + 熟客 + 外帳) = 差異
             </p>
             <ul class="list-disc list-inside mt-3 text-sm space-y-1">
-                <li class="text-green-400"><span class="font-bold text-cyan-400">正值 (+)</span>: 新光少收錢 (需追蹤明細退款)</li>
-                <li class="text-red-400"><span class="font-bold text-cyan-400">負值 (-)</span>: 新光多收錢 (需追蹤明細入帳)</li>
+                <li class="text-[#00ff99]"><span class="font-bold text-white">正值 (+)</span>: 系統提示：新光少收錢 (追蹤明細退款)</li>
+                <li class="text-[#ff00ff]"><span class="font-bold text-white">負值 (-)</span>: 系統提示：新光多收錢 (追蹤明細入帳)</li>
             </ul>
         </div>
 
         <div id="inputs-container" class="space-y-4">
             
-            <h2 class="text-xl font-bold text-cyan-400 pt-4 mb-2 border-t border-gray-800">POS 銷貨項目 (收入)</h2>
+            <h2 class="text-xl font-bold text-white pt-4 mb-2 border-t border-gray-800 neon-text-glow">POS</h2>
             <div class="grid grid-cols-3 gap-4">
                 
                 <div class="input-group col-span-3">
                     <label for="paymentTotal" class="block text-sm font-medium text-gray-300">Payment Total (總收入)</label>
                     <input type="text" id="paymentTotal" inputmode="decimal"
-                        class="mt-1 block w-full px-4 py-3 border border-gray-700 rounded-lg shadow-inner focus:ring-cyan-500 focus:border-cyan-500 transition duration-150 ease-in-out standard-digit-input text-left bg-gray-900 text-white font-bold">
+                        class="mt-1 block w-full px-4 py-3 border rounded-lg shadow-inner standard-digit-input text-left font-bold">
                 </div>
             </div>
 
@@ -81,48 +146,48 @@
                 <div class="input-group">
                     <label for="preSaleSettlement" class="block text-sm font-medium text-gray-300">預售結帳 (減項)</label>
                     <input type="text" id="preSaleSettlement" inputmode="decimal"
-                        class="mt-1 block w-full px-4 py-3 border border-gray-700 rounded-lg shadow-sm focus:ring-cyan-500 focus:border-cyan-500 transition duration-150 ease-in-out standard-digit-input text-left bg-gray-900 text-white">
+                        class="mt-1 block w-full px-4 py-3 border rounded-lg shadow-sm standard-digit-input text-left">
                 </div>
 
                 <div class="input-group">
                     <label for="acPlus" class="block text-sm font-medium text-gray-300">AC+ (減項)</label>
                     <input type="text" id="acPlus" inputmode="decimal"
-                        class="mt-1 block w-full px-4 py-3 border border-gray-700 rounded-lg shadow-sm focus:ring-cyan-500 focus:border-cyan-500 transition duration-150 ease-in-out standard-digit-input text-left bg-gray-900 text-white">
+                        class="mt-1 block w-full px-4 py-3 border rounded-lg shadow-sm standard-digit-input text-left">
                 </div>
             </div>
             
-            <h2 class="text-xl font-bold text-cyan-400 pt-4 border-t border-gray-800 mt-6 mb-2">新光/外帳 (應收項目)</h2>
+            <h2 class="text-xl font-bold text-white pt-4 border-t border-gray-800 mt-6 mb-2 neon-text-glow">SKM</h2>
             
             <div class="grid grid-cols-2 gap-4">
                 <div class="input-group">
                     <label for="skm1Amount" class="block text-sm font-medium text-gray-300">SKM 1</label>
                     <input type="text" id="skm1Amount" inputmode="decimal"
-                        class="mt-1 block w-full px-4 py-3 border border-gray-700 rounded-lg shadow-sm focus:ring-cyan-500 focus:border-cyan-500 transition duration-150 ease-in-out standard-digit-input text-left bg-gray-900 text-white">
+                        class="mt-1 block w-full px-4 py-3 border rounded-lg shadow-sm standard-digit-input text-left">
                 </div>
                 
                 <div class="input-group">
                     <label for="skm2Amount" class="block text-sm font-medium text-gray-300">SKM 2</label>
                     <input type="text" id="skm2Amount" inputmode="decimal"
-                        class="mt-1 block w-full px-4 py-3 border border-gray-700 rounded-lg shadow-sm focus:ring-cyan-500 focus:border-cyan-500 transition duration-150 ease-in-out standard-digit-input text-left bg-gray-900 text-white">
+                        class="mt-1 block w-full px-4 py-3 border rounded-lg shadow-sm standard-digit-input text-left">
                 </div>
 
                 <div class="input-group">
                     <label for="skmLoyalCustomer" class="block text-sm font-medium text-gray-300">SKM 熟客</label>
                     <input type="text" id="skmLoyalCustomer" inputmode="decimal"
-                        class="mt-1 block w-full px-4 py-3 border border-gray-700 rounded-lg shadow-sm focus:ring-cyan-500 focus:border-cyan-500 transition duration-150 ease-in-out standard-digit-input text-left bg-gray-900 text-white">
+                        class="mt-1 block w-full px-4 py-3 border rounded-lg shadow-sm standard-digit-input text-left">
                 </div>
                 
                 <div class="input-group">
                     <label for="externalAccount" class="block text-sm font-medium text-gray-300">外帳</label>
                     <input type="text" id="externalAccount" inputmode="decimal"
-                        class="mt-1 block w-full px-4 py-3 border border-gray-700 rounded-lg shadow-sm focus:ring-cyan-500 focus:border-cyan-500 transition duration-150 ease-in-out standard-digit-input text-left bg-gray-900 text-white">
+                        class="mt-1 block w-full px-4 py-3 border rounded-lg shadow-sm standard-digit-input text-left">
                 </div>
             </div>
         </div>
 
-        <div class="mt-10 pt-6 border-t border-cyan-500">
-            <h2 class="text-xl font-bold text-white mb-4 text-center">🎉 最終對帳結果 🎉</h2>
-            <div id="difference-display" class="p-6 rounded-xl shadow-xl text-center transition duration-300 ease-in-out bg-gray-900 border border-cyan-500">
+        <div class="mt-10 pt-6 border-t border-gray-700">
+            <h2 class="text-xl font-bold text-white mb-4 text-center">🎉 最終對帳結果 (ERROR LEVEL) 🎉</h2>
+            <div id="difference-display" class="p-6 rounded-xl shadow-xl text-center transition duration-300 ease-in-out bg-gray-900 border">
                 <p class="text-7xl difference-digit-display transition-colors duration-300 text-white" id="difference-value">-</p>
             </div>
             <p id="reconciliation-status" class="mt-4 text-center text-xl font-semibold text-slate-200">請輸入數字以開始對帳...</p>
@@ -152,9 +217,9 @@
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
-        // 更新 INPUT_IDS 以包含所有欄位
         const INPUT_IDS = ['paymentTotal', 'preSaleSettlement', 'acPlus', 'skm1Amount', 'skm2Amount', 'externalAccount', 'skmLoyalCustomer'];
         const DIFF_VALUE_EL = document.getElementById('difference-value');
+        const DIFF_DISPLAY_EL = document.getElementById('difference-display'); 
         const STATUS_EL = document.getElementById('reconciliation-status');
         const LOADING_EL = document.getElementById('loading-status');
         
@@ -169,13 +234,10 @@
             if (typeof value !== 'string') value = String(value);
             // 允許數字、小數點和開頭的負號
             const cleaned = value.replace(/,/g, ''); // 移除所有逗號
-            // 保留數字、小數點、和開頭的負號，並處理多個負號或小數點的情況（只取第一個）
             let result = cleaned.replace(/[^-0-9.]/g, '');
-            // 確保只有第一個字符是負號
             if (result.indexOf('-') > 0) {
                 result = result.replace(/-/g, '');
             }
-            // 確保只有一個小數點
             if ((result.match(/\./g) || []).length > 1) {
                 const parts = result.split('.');
                 result = parts.shift() + '.' + parts.join('');
@@ -184,166 +246,119 @@
         }
 
         /**
-         * 將數字或數字字串格式化為帶有千位數分隔符號的字串。
-         * @param {string | number} value - 待格式化的值。
-         * @returns {string} 帶有千分位符號的字串。
-         */
-        function formatNumberWithCommas(value) {
-            const cleanedValue = unformatNumber(value);
-            if (cleanedValue === '' || cleanedValue === '-') return cleanedValue;
-
-            // 使用 Intl.NumberFormat 確保準確的千分位格式
-            // 使用 'en-US' 確保使用逗號作為千分位分隔符
-            return new Intl.NumberFormat('en-US').format(parseFloat(cleanedValue));
-        }
-
-        // --- 2. 核心計算邏輯與狀態判斷 ---
-        
-        /**
          * 檢查是否所有輸入欄位的視覺值都為空字串。
-         * 這是判斷「初始未輸入」狀態的依據。
          */
         function isInitialState() {
             return INPUT_IDS.every(id => {
                 const inputEl = document.getElementById(id);
-                // 檢查 input.value 是否為空字串
                 return inputEl && inputEl.value === '';
             });
         }
 
         function calculateDifference() {
-            // 從輸入框獲取數值 (先去除千分位符號)，如果為空則視為 0
-            const paymentTotalStr = unformatNumber(document.getElementById('paymentTotal').value);
-            const preSaleSettlementStr = unformatNumber(document.getElementById('preSaleSettlement').value);
-            const acPlusStr = unformatNumber(document.getElementById('acPlus').value);
-            const skm1AmountStr = unformatNumber(document.getElementById('skm1Amount').value); 
-            const skm2AmountStr = unformatNumber(document.getElementById('skm2Amount').value); 
-            const externalAccountStr = unformatNumber(document.getElementById('externalAccount').value);
-            // 讀取 SKM 熟客
-            const skmLoyalCustomerStr = unformatNumber(document.getElementById('skmLoyalCustomer').value); 
+            // 從輸入框獲取數值 (空字串轉為 0)
+            const paymentTotal = parseFloat(unformatNumber(document.getElementById('paymentTotal').value)) || 0;
+            const preSaleSettlement = parseFloat(unformatNumber(document.getElementById('preSaleSettlement').value)) || 0;
+            const acPlus = parseFloat(unformatNumber(document.getElementById('acPlus').value)) || 0;
+            const skm1Amount = parseFloat(unformatNumber(document.getElementById('skm1Amount').value)) || 0; 
+            const skm2Amount = parseFloat(unformatNumber(document.getElementById('skm2Amount').value)) || 0; 
+            const externalAccount = parseFloat(unformatNumber(document.getElementById('externalAccount').value)) || 0;
+            const skmLoyalCustomer = parseFloat(unformatNumber(document.getElementById('skmLoyalCustomer').value)) || 0; 
 
-            // 轉換為浮點數進行計算 (空字串轉為 0)
-            const paymentTotal = parseFloat(paymentTotalStr) || 0;
-            const preSaleSettlement = parseFloat(preSaleSettlementStr) || 0;
-            const acPlus = parseFloat(acPlusStr) || 0;
-            const skm1Amount = parseFloat(skm1AmountStr) || 0;
-            const skm2Amount = parseFloat(skm2AmountStr) || 0;
-            const externalAccount = parseFloat(externalAccountStr) || 0;
-            const skmLoyalCustomer = parseFloat(skmLoyalCustomerStr) || 0; 
-
-            // 計算差異：(Payment Total - 預售結帳 - AC+) - (SKM1 + SKM2 + SKM 熟客 + 外帳)
+            // 計算差異
             const difference = paymentTotal
                              - (preSaleSettlement + acPlus)
                              - (skm1Amount + skm2Amount + skmLoyalCustomer + externalAccount);
 
-            // 確保只取兩位小數點，避免浮點數誤差
             return parseFloat(difference.toFixed(2));
         }
 
-        // --- 3. 更新 UI 顯示 ---
+        // --- 3. 更新 UI 顯示 (調整動畫邏輯) ---
         function updateUI() {
             const difference = calculateDifference();
             const initialState = isInitialState(); 
             
-            // 移除所有顏色類別
-            DIFF_VALUE_EL.parentElement.classList.remove('bg-green-900', 'bg-red-900', 'border-green-400', 'border-red-400', 'bg-gray-900', 'border-cyan-500');
-            DIFF_VALUE_EL.classList.remove('text-green-300', 'text-red-300', 'text-white');
-            STATUS_EL.classList.remove('text-green-400', 'text-red-400', 'text-slate-200');
-
+            // 移除所有顏色/動畫類別，保持清潔
+            DIFF_DISPLAY_EL.classList.remove('diff-error-state', 'diff-success-state');
+            DIFF_VALUE_EL.classList.remove('text-[#00ff99]', 'text-[#ff00ff]', 'text-white');
+            STATUS_EL.classList.remove('text-[#00ff99]', 'text-[#ff00ff]', 'text-slate-200');
 
             if (initialState) {
-                // 如果是初始狀態 (所有輸入框為空)，差異顯示中性符號
+                // 初始狀態：顯示中性符號，並應用預設的脈衝動畫
                 DIFF_VALUE_EL.textContent = '-'; 
-                DIFF_VALUE_EL.parentElement.classList.add('bg-gray-900', 'border-cyan-500');
                 DIFF_VALUE_EL.classList.add('text-white');
                 STATUS_EL.classList.add('text-slate-200');
                 STATUS_EL.textContent = '請輸入數字以開始對帳...';
+                
+                // 由於容器預設已應用 pulse-glow，這裡不需要特別添加
                 return; 
             }
             
-            // 非初始狀態 (有輸入數據或載入了非零數據)
-            
-            // 差異顯示套用千分位符號
+            // 非初始狀態：顯示計算結果
             DIFF_VALUE_EL.textContent = difference.toLocaleString('en-US');
 
             if (difference === 0) {
-                // 平帳 - 終端機綠色
-                DIFF_VALUE_EL.parentElement.classList.add('bg-green-900', 'border-green-400');
-                DIFF_VALUE_EL.classList.add('text-green-300');
-                STATUS_EL.textContent = '✅ 恭喜！今日對帳無差異！';
-                STATUS_EL.classList.add('text-green-400');
-            } else if (difference > 0) {
-                // 正差異 - 終端機紅色/橙色
-                DIFF_VALUE_EL.parentElement.classList.add('bg-red-900', 'border-red-400');
-                DIFF_VALUE_EL.classList.add('text-red-300');
-                STATUS_EL.textContent = `🚨 差異 +${difference.toLocaleString('en-US')} (新光少收錢，需追蹤明細)`;
-                STATUS_EL.classList.add('text-red-400');
+                // 平帳 - 成功狀態
+                DIFF_DISPLAY_EL.classList.add('diff-success-state'); 
+                DIFF_VALUE_EL.classList.add('text-[#00ff99]');
+                STATUS_EL.textContent = '✅ 恭喜！數據同步成功，對帳無差異！';
+                STATUS_EL.classList.add('text-[#00ff99]');
             } else {
-                // 負差異 - 終端機紅色/橙色
-                DIFF_VALUE_EL.parentElement.classList.add('bg-red-900', 'border-red-400');
-                DIFF_VALUE_EL.classList.add('text-red-300');
-                STATUS_EL.textContent = `🚨 差異 ${difference.toLocaleString('en-US')} (新光多收錢，需追蹤明細)`;
-                STATUS_EL.classList.add('text-red-400');
+                // 非零差異 - 錯誤警報狀態
+                DIFF_DISPLAY_EL.classList.add('diff-error-state'); 
+                DIFF_VALUE_EL.classList.add('text-[#ff00ff]'); // 霓虹粉色
+
+                if (difference > 0) {
+                    STATUS_EL.textContent = `🚨 錯誤級別：+${difference.toLocaleString('en-US')} (新光少收錢，需追蹤明細)`;
+                } else {
+                    STATUS_EL.textContent = `🚨 錯誤級別：${difference.toLocaleString('en-US')} (新光多收錢，需追蹤明細)`;
+                }
+                STATUS_EL.classList.add('text-[#ff00ff]');
             }
         }
 
-        // --- 4. Firestore 數據操作 (不變) ---
+        // --- 4. Firestore 數據操作 (保持不變) ---
 
-        // 取得單一文件路徑 (Private Data)
         function getDocRef() {
             if (!db || !userId) return null;
-            // 路徑：/artifacts/{appId}/users/{userId}/reconciliation_tool/current_state
             return doc(db, 'artifacts', appId, 'users', userId, 'reconciliation_tool', 'current_state');
         }
 
-        // 儲存數據到 Firestore
         async function saveData() {
-            if (!isAuthReady) return; // 確保認證完成
-            
+            if (!isAuthReady) return;
             const docRef = getDocRef();
             if (!docRef) return;
 
             const dataToSave = {};
             INPUT_IDS.forEach(id => {
                 const inputEl = document.getElementById(id);
-                // 1. unformat the string (去除千分位符號)
                 const unformattedStr = unformatNumber(inputEl.value);
-                // 2. convert to number for storage (儲存純數字)
-                // 即使是空字串，parseFloat 後也會是 NaN，透過 || 0 確保存儲的是 0
                 const value = parseFloat(unformattedStr) || 0;
                 dataToSave[id] = value;
             });
 
             try {
-                // 使用 setDoc 覆寫或創建文件
                 await setDoc(docRef, dataToSave);
             } catch (error) {
                 console.error("Error saving data to Firestore:", error);
             }
         }
 
-        // 從 Firestore 載入數據並設定即時監聽
         function loadData() {
             const docRef = getDocRef();
             if (!docRef) return;
 
-            // 設置 onSnapshot 監聽器以實時獲取數據
             onSnapshot(docRef, (docSnapshot) => {
-                LOADING_EL.style.display = 'none'; // 隱藏載入提示
+                LOADING_EL.style.display = 'none';
                 if (docSnapshot.exists()) {
                     const data = docSnapshot.data();
-                    // 將數據填充回輸入框
                     INPUT_IDS.forEach(id => {
                         const inputEl = document.getElementById(id);
                         if (data[id] !== undefined && inputEl) {
                             const numericValue = data[id];
-                            
-                            // 數字 0 顯示為 '' (空字串)，實現輸入框預設不帶 0
                             if (numericValue !== 0) {
-                                // 載入時，直接顯示純數字
                                 inputEl.value = numericValue.toString();
                             } else {
-                                // 如果為 0，則顯示 '' (空字串)
                                 inputEl.value = ''; 
                             }
                         }
@@ -351,60 +366,49 @@
                     console.log("Data loaded from Firestore successfully.");
                 } else {
                     console.log("No data found, using default '' values.");
-                    // 如果沒有數據，確保所有欄位都設定為 '' (空字串)
                     INPUT_IDS.forEach(id => {
                         const inputEl = document.getElementById(id);
                         if(inputEl) inputEl.value = '';
                     });
                 }
-                // 無論載入成功與否，都應更新 UI
                 updateUI();
             }, (error) => {
                 console.error("Error listening to Firestore data:", error);
                 LOADING_EL.textContent = '載入數據失敗，請稍後重試。';
-                updateUI(); // 仍然使用當前輸入值進行計算
+                updateUI();
             });
         }
 
-        // --- 5. 事件監聽器和初始化 (不變) ---
+        // --- 5. 事件監聽器和初始化 (保持單元格清零邏輯不變) ---
 
         function setupEventListeners() {
             INPUT_IDS.forEach(id => {
                 const inputEl = document.getElementById(id);
                 if (inputEl) {
-                    // 監聽輸入變化，即時更新 UI 
                     inputEl.addEventListener('input', function() {
                         const caretPos = this.selectionStart;
-                        
-                        // 移除所有非數字字符 (不含千分位)
                         const cleanedValue = unformatNumber(this.value);
                         this.value = cleanedValue;
-                        
-                        // 嘗試保留游標位置
                         this.setSelectionRange(caretPos, caretPos);
 
-                        // 更新計算和儲存
                         updateUI();
-                        // 使用 setTimeout 進行簡單的去抖動 (debounce) 以減少寫入次數
                         clearTimeout(this.saveTimer);
                         this.saveTimer = setTimeout(saveData, 500);
                     });
                     
-                    // 監聽 blur 事件
                     inputEl.addEventListener('blur', function() {
-                        // 只要值是 ''、'-'、'.' 或 '0'，就強制設定為空字串 ''，防止手機自動帶入 0
+                        // 只要值是 ''、'-'、'.' 或 '0'，就強制設定為空字串 ''
                         if (this.value === '' || this.value === '-' || this.value === '.' || this.value === '0') {
-                            this.value = ''; // 保持單元格視覺上為空
+                            this.value = '';
                             
-                            updateUI(); // 確保 UI 立即更新 (此時計算值為 0)
-                            saveData(); // 立即存儲 (輸入框為 ''，存儲為 0)
+                            updateUI();
+                            saveData();
                         }
                     });
                 }
             });
         }
 
-        // Firebase 初始化和認證流程
         async function initializeFirebase() {
             if (!firebaseConfig) {
                 console.error("Firebase configuration is missing.");
@@ -417,15 +421,12 @@
                 db = getFirestore(app);
                 auth = getAuth(app);
                 
-                // 處理認證
                 await new Promise((resolve) => {
-                    // Firebase Auth 狀態變更監聽
                     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-                        unsubscribe(); // 只需要監聽一次
+                        unsubscribe();
                         if (user) {
                             userId = user.uid;
                         } else {
-                            // 使用提供的 custom token 登入，如果沒有則匿名登入
                             if (initialAuthToken) {
                                 await signInWithCustomToken(auth, initialAuthToken);
                                 userId = auth.currentUser.uid;
@@ -440,7 +441,6 @@
                 });
 
                 console.log("Firebase Auth Ready. User ID:", userId);
-                // 認證完成後，開始載入和監聽數據
                 loadData();
                 
             } catch (error) {
@@ -449,7 +449,6 @@
             }
         }
         
-        // 頁面載入完成後執行
         window.onload = function() {
             setupEventListeners();
             updateUI();

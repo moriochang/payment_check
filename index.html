@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>對帳小工具</title>
-    <!-- 載入 Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
     <style>
         /* 確保字體為 Inter */
         body {
@@ -31,94 +31,86 @@
             🧾 對帳計算機
         </h1>
 
-        <!-- 說明區塊 -->
         <div class="bg-indigo-50 border-l-4 border-indigo-500 text-indigo-800 p-4 rounded-lg mb-6">
-            <p class="font-bold mb-1">對帳目標：差異為 0</p>
-            <!-- 更新公式顯示，包含 SKM 熟客 -->
-            <p class="text-sm font-semibold">對帳公式：(Payment Total - 預售結帳 - AC+) 應等於 (SKM1 + SKM2 + SKM 熟客 + 外帳)</p>
+            <p class="font-bold mb-2">對帳目標：差異為 0</p>
+            <p class="text-sm font-semibold italic text-gray-700">
+                公式：(Payment Total - 預售結帳 - AC+)  -  (SKM1 + SKM2 + SKM 熟客 + 外帳)  =  差異
+            </p>
             <ul class="list-disc list-inside mt-2 text-sm space-y-1">
-                <li><span class="font-bold text-green-700">差異為 +</span>: 新光少收錢 (或明細未退)</li>
-                <li><span class="font-bold text-red-700">差異為 -</span>: 新光多收錢 (或明細未入)</li>
+                <li class="text-green-700"><span class="font-bold">差異為 + (正值)</span>: 新光少收錢 (或明細未退)</li>
+                <li class="text-red-700"><span class="font-bold">差異為 - (負值)</span>: 新光多收錢 (或明細未入)</li>
             </ul>
         </div>
 
         <div id="inputs-container" class="space-y-4">
             
-            <!-- 新增 POS 標題 -->
-            <h2 class="text-xl font-bold text-indigo-700 pt-2 border-t border-gray-200">POS</h2>
-            
-            <!-- Payment Total -->
-            <div class="input-group">
-                <label for="paymentTotal" class="block text-sm font-medium text-gray-700">Payment Total</label>
-                <!-- 注意：輸入欄位不再自動加入千分位符號 -->
-                <input type="text" id="paymentTotal" placeholder="0" value=""
-                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out text-lg font-mono text-left">
+            <h2 class="text-xl font-bold text-indigo-700 pt-4 mb-2">POS 銷貨</h2>
+            <div class="grid grid-cols-3 gap-4">
+                
+                <div class="input-group col-span-3">
+                    <label for="paymentTotal" class="block text-sm font-medium text-gray-700">Payment Total</label>
+                    <input type="text" id="paymentTotal" value=""
+                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out text-lg font-mono text-left bg-indigo-50 font-bold">
+                </div>
             </div>
 
-            <!-- 預售結帳 -->
-            <div class="input-group">
-                <label for="preSaleSettlement" class="block text-sm font-medium text-gray-700">預售結帳</label>
-                <input type="text" id="preSaleSettlement" placeholder="0" value=""
-                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out text-lg font-mono text-left">
-            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="input-group">
+                    <label for="preSaleSettlement" class="block text-sm font-medium text-gray-700">預售結帳 (-)</label>
+                    <input type="text" id="preSaleSettlement" value=""
+                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out text-lg font-mono text-left">
+                </div>
 
-            <!-- AC+ -->
-            <div class="input-group">
-                <label for="acPlus" class="block text-sm font-medium text-gray-700">AC+</label>
-                <input type="text" id="acPlus" placeholder="0" value=""
-                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out text-lg font-mono text-left">
+                <div class="input-group">
+                    <label for="acPlus" class="block text-sm font-medium text-gray-700">AC+ (-)</label>
+                    <input type="text" id="acPlus" value=""
+                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out text-lg font-mono text-left">
+                </div>
             </div>
             
-            <!-- 新增 新光 (SKM) 標題 -->
-            <h2 class="text-xl font-bold text-indigo-700 pt-2 border-t border-gray-200">新光 (SKM)</h2>
-
-            <!-- SKM1 (原 SKM) -->
-            <div class="input-group">
-                <label for="skm1Amount" class="block text-sm font-medium text-gray-700">SKM 1</label>
-                <input type="text" id="skm1Amount" placeholder="0" value=""
-                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out text-lg font-mono text-left">
-            </div>
+            <h2 class="text-xl font-bold text-indigo-700 pt-4 border-t border-gray-200 mt-6 mb-2">新光 (SKM) / 外帳</h2>
             
-            <!-- SKM2 欄位 -->
-            <div class="input-group">
-                <label for="skm2Amount" class="block text-sm font-medium text-gray-700">SKM 2</label>
-                <input type="text" id="skm2Amount" placeholder="0" value=""
-                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out text-lg font-mono text-left">
-            </div>
-            
-            <!-- 外帳 -->
-            <div class="input-group">
-                <label for="externalAccount" class="block text-sm font-medium text-gray-700">外帳</label>
-                <input type="text" id="externalAccount" placeholder="0" value=""
-                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out text-lg font-mono text-left">
-            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="input-group">
+                    <label for="skm1Amount" class="block text-sm font-medium text-gray-700">SKM 1 (=)</label>
+                    <input type="text" id="skm1Amount" value=""
+                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out text-lg font-mono text-left">
+                </div>
+                
+                <div class="input-group">
+                    <label for="skm2Amount" class="block text-sm font-medium text-gray-700">SKM 2 (=)</label>
+                    <input type="text" id="skm2Amount" value=""
+                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out text-lg font-mono text-left">
+                </div>
 
-            <!-- 新增 skm熟客 欄位 -->
-            <div class="input-group">
-                <label for="skmLoyalCustomer" class="block text-sm font-medium text-gray-700">SKM 熟客</label>
-                <input type="text" id="skmLoyalCustomer" placeholder="0" value=""
-                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out text-lg font-mono text-left">
+                <div class="input-group">
+                    <label for="skmLoyalCustomer" class="block text-sm font-medium text-gray-700">SKM 熟客 (=)</label>
+                    <input type="text" id="skmLoyalCustomer" value=""
+                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out text-lg font-mono text-left">
+                </div>
+                
+                <div class="input-group">
+                    <label for="externalAccount" class="block text-sm font-medium text-gray-700">外帳 (=)</label>
+                    <input type="text" id="externalAccount" value=""
+                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out text-lg font-mono text-left">
+                </div>
             </div>
         </div>
 
-        <!-- 差異結果顯示 -->
-        <div class="mt-8 pt-6 border-t border-gray-200">
-            <h2 class="text-xl font-semibold text-gray-700 mb-3 text-center">最終差異 (Difference)</h2>
-            <div id="difference-display" class="p-5 rounded-xl shadow-inner text-center">
-                <!-- 差異值將在此顯示 -->
-                <p class="text-5xl font-extrabold font-mono" id="difference-value">0</p>
+        <div class="mt-10 pt-6 border-t border-gray-300">
+            <h2 class="text-xl font-bold text-gray-800 mb-3 text-center">🔍 最終差異 (Difference)</h2>
+            <div id="difference-display" class="p-6 rounded-xl shadow-xl text-center transition duration-300 ease-in-out">
+                <p class="text-6xl font-extrabold font-mono transition-colors duration-300" id="difference-value">0</p>
             </div>
-            <p id="reconciliation-status" class="mt-3 text-center text-lg font-medium"></p>
+            <p id="reconciliation-status" class="mt-4 text-center text-lg font-semibold"></p>
         </div>
 
-        <p id="loading-status" class="mt-4 text-center text-sm text-gray-500">
-            <!-- 載入狀態顯示 -->
+        <p id="loading-status" class="mt-6 text-center text-sm text-gray-500">
             <span class="animate-pulse">數據載入中...</span>
         </p>
 
     </div>
 
-    <!-- Firebase 腳本 -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -137,7 +129,7 @@
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
-        // 更新 INPUT_IDS 以包含所有欄位，包括新增的 skmLoyalCustomer
+        // 更新 INPUT_IDS 以包含所有欄位
         const INPUT_IDS = ['paymentTotal', 'preSaleSettlement', 'acPlus', 'skm1Amount', 'skm2Amount', 'externalAccount', 'skmLoyalCustomer'];
         const DIFF_VALUE_EL = document.getElementById('difference-value');
         const STATUS_EL = document.getElementById('reconciliation-status');
@@ -154,7 +146,18 @@
             if (typeof value !== 'string') value = String(value);
             // 允許數字、小數點和開頭的負號
             const cleaned = value.replace(/,/g, ''); // 移除所有逗號
-            return cleaned.replace(/[^0-9.-]/g, '');
+            // 保留數字、小數點、和開頭的負號，並處理多個負號或小數點的情況（只取第一個）
+            let result = cleaned.replace(/[^-0-9.]/g, '');
+            // 確保只有第一個字符是負號
+            if (result.indexOf('-') > 0) {
+                result = result.replace(/-/g, '');
+            }
+            // 確保只有一個小數點
+            if ((result.match(/\./g) || []).length > 1) {
+                const parts = result.split('.');
+                result = parts.shift() + '.' + parts.join('');
+            }
+            return result;
         }
 
         /**
@@ -180,7 +183,7 @@
             const skm1AmountStr = unformatNumber(document.getElementById('skm1Amount').value); 
             const skm2AmountStr = unformatNumber(document.getElementById('skm2Amount').value); 
             const externalAccountStr = unformatNumber(document.getElementById('externalAccount').value);
-            // 讀取新增的 SKM 熟客
+            // 讀取 SKM 熟客
             const skmLoyalCustomerStr = unformatNumber(document.getElementById('skmLoyalCustomer').value); 
 
             // 轉換為浮點數進行計算
@@ -190,9 +193,10 @@
             const skm1Amount = parseFloat(skm1AmountStr) || 0;
             const skm2Amount = parseFloat(skm2AmountStr) || 0;
             const externalAccount = parseFloat(externalAccountStr) || 0;
-            const skmLoyalCustomer = parseFloat(skmLoyalCustomerStr) || 0; // 新增轉換
+            const skmLoyalCustomer = parseFloat(skmLoyalCustomerStr) || 0; 
 
             // 計算差異：(Payment Total - 預售結帳 - AC+) - (SKM1 + SKM2 + SKM 熟客 + 外帳)
+            // 將所有 POS 銷貨相關視為收入，SKM 和外帳視為應付/已收，故為 (POS 收入) - (SKM/外帳 應付)
             const difference = paymentTotal
                              - (preSaleSettlement + acPlus)
                              - (skm1Amount + skm2Amount + skmLoyalCustomer + externalAccount);
@@ -205,24 +209,31 @@
         function updateUI() {
             const difference = calculateDifference();
             
-            // 差異顯示仍套用千分位符號 (讓輸出結果易讀)
+            // 差異顯示仍套用千分位符號
             DIFF_VALUE_EL.textContent = difference.toLocaleString('en-US');
 
-            DIFF_VALUE_EL.classList.remove('bg-green-100', 'bg-red-100', 'text-green-800', 'text-red-800', 'text-gray-600');
-            STATUS_EL.classList.remove('text-green-600', 'text-red-600');
+            // 移除所有顏色類別
+            DIFF_VALUE_EL.parentElement.classList.remove('bg-green-100', 'bg-red-100', 'bg-gray-100');
+            DIFF_VALUE_EL.classList.remove('text-green-800', 'text-red-800', 'text-gray-600');
+            STATUS_EL.classList.remove('text-green-600', 'text-red-600', 'text-gray-500');
 
             if (difference === 0) {
-                DIFF_VALUE_EL.classList.add('bg-green-100', 'text-green-800');
-                STATUS_EL.textContent = '🥳 YA!沒有帳差！';
+                // 平帳
+                DIFF_VALUE_EL.parentElement.classList.add('bg-green-100');
+                DIFF_VALUE_EL.classList.add('text-green-800');
+                STATUS_EL.textContent = '🥳 恭喜！沒有帳差！';
                 STATUS_EL.classList.add('text-green-600');
+            } else if (difference > 0) {
+                // 新光少收錢 (或明細未退)
+                DIFF_VALUE_EL.parentElement.classList.add('bg-red-100');
+                DIFF_VALUE_EL.classList.add('text-red-800');
+                STATUS_EL.textContent = `🚨 差異 +${difference.toLocaleString('en-US')} (新光少收錢，明細未退)`;
+                STATUS_EL.classList.add('text-red-600');
             } else {
-                // 根據差異的正負值顯示解讀
-                DIFF_VALUE_EL.classList.add('bg-red-100', 'text-red-800');
-                if (difference > 0) {
-                    STATUS_EL.textContent = `🚨 差異 +${difference.toLocaleString('en-US')} (新光少收錢，明細未退)`;
-                } else {
-                    STATUS_EL.textContent = `🚨 差異 ${difference.toLocaleString('en-US')} (新光多收錢，明細未入)`;
-                }
+                // 新光多收錢 (或明細未入)
+                DIFF_VALUE_EL.parentElement.classList.add('bg-red-100');
+                DIFF_VALUE_EL.classList.add('text-red-800');
+                STATUS_EL.textContent = `🚨 差異 ${difference.toLocaleString('en-US')} (新光多收錢，明細未入)`;
                 STATUS_EL.classList.add('text-red-600');
             }
         }
@@ -249,6 +260,7 @@
                 // 1. unformat the string (去除千分位符號)
                 const unformattedStr = unformatNumber(inputEl.value);
                 // 2. convert to number for storage (儲存純數字)
+                // 即使是空字串，parseFloat 後也會是 NaN，透過 || 0 確保存儲的是 0
                 const value = parseFloat(unformattedStr) || 0;
                 dataToSave[id] = value;
             });
@@ -276,18 +288,25 @@
                         const inputEl = document.getElementById(id);
                         if (data[id] !== undefined && inputEl) {
                             const numericValue = data[id];
+                            
+                            // *** 核心變更：數字 0 顯示為 '0'，而不是空白 ***
                             if (numericValue !== 0) {
                                 // 載入時，不再套用千分位符號格式，直接顯示純數字
                                 inputEl.value = numericValue.toString();
                             } else {
-                                // 如果為 0，則顯示空白
-                                inputEl.value = '';
+                                // 如果為 0，則顯示 '0'
+                                inputEl.value = '0';
                             }
                         }
                     });
                     console.log("Data loaded from Firestore successfully.");
                 } else {
                     console.log("No data found, using default empty values.");
+                    // 如果沒有數據，確保所有欄位都設定為 '0'
+                    INPUT_IDS.forEach(id => {
+                        const inputEl = document.getElementById(id);
+                        if(inputEl) inputEl.value = '0';
+                    });
                 }
                 // 無論載入成功與否，都應更新 UI
                 updateUI();
@@ -304,15 +323,15 @@
             INPUT_IDS.forEach(id => {
                 const inputEl = document.getElementById(id);
                 if (inputEl) {
-                    // 監聽輸入變化，即時更新 UI 和格式
+                    // 監聽輸入變化，即時更新 UI 
                     inputEl.addEventListener('input', function() {
                         const caretPos = this.selectionStart;
                         
-                        // 1. 移除所有非數字字符，實現「不顯示千分位符號」的要求
+                        // 移除所有非數字字符 (不含千分位)
                         const cleanedValue = unformatNumber(this.value);
                         this.value = cleanedValue;
                         
-                        // 2. 嘗試保留游標位置（由於我們只移除字符，這會相對簡單）
+                        // 嘗試保留游標位置
                         this.setSelectionRange(caretPos, caretPos);
 
                         // 更新計算和儲存
@@ -320,6 +339,15 @@
                         // 使用 setTimeout 進行簡單的去抖動 (debounce) 以減少寫入次數
                         clearTimeout(this.saveTimer);
                         this.saveTimer = setTimeout(saveData, 500);
+                    });
+                    
+                    // 監聽 blur 事件，確保欄位失焦時，空值會變成 '0'
+                    inputEl.addEventListener('blur', function() {
+                        if (this.value === '' || this.value === '-' || this.value === '.') {
+                            this.value = '0';
+                            updateUI(); // 確保 UI 立即更新
+                            saveData(); // 立即存儲 '0'
+                        }
                     });
                 }
             });
@@ -374,6 +402,11 @@
         window.onload = function() {
             setupEventListeners();
             // 在嘗試載入數據前，先進行初始計算和 UI 更新 (使用預設或 HTML 中的值)
+            // 初始值都設定為 '0' (為了符合「數字 0 的部分以正常顯示為主」)
+            INPUT_IDS.forEach(id => {
+                const inputEl = document.getElementById(id);
+                if(inputEl) inputEl.value = '0';
+            });
             updateUI();
             initializeFirebase();
         };
